@@ -7,15 +7,15 @@
 
 ## Descripción
 Una vez analizadas las necesidades del proyecto, se espera que el alumno desarrolle una API REST que sea capaz de lo siguiente:
-[ ] Registro de usuarios usando Bcrypt.
-[ ] Login de usuarios + token + middleware.
-[ ] Que sea capaz de crear un CRUD.
-[ ] Dar/quitar Like a post.
-[ ] Backend disponible en producción.
+- Registro de usuarios usando Bcrypt.
+- Login de usuarios + token + middleware.
+- Que sea capaz de crear un CRUD.
+- Dar/quitar Like a post.
+- Backend disponible en producción.
 
 ## Requisitos imprescindibles del proyecto:
-[ ] Uso de ramas con git, cuando se termine el proyecto deberán quedar dos ramas la master o main y la develop.
-[ ] Presentación de README excelente.
+- Uso de ramas con git, cuando se termine el proyecto deberán quedar dos ramas la master o main y la develop.
+- Presentación de README excelente.
 
 
 ## Tecnologías

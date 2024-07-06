@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 
-PORT = 3023
+PORT = 3003
 
 const { dbConnection } = require('./config/config')
 

@@ -12,7 +12,14 @@ const PostController = {
     },
     async getAll(req, res) {
         try {
+            // Actualizamos ProductController.js de la siguiente forma 
+            // para implementar nuestra paginación.
+            const { page = 1, limit = 10 } = req.query
             const posts = await Post.find()
+                // limit: Limita el número de documentos a devolver
+                .limit(limit)
+                // skip(): sirve para controlar dónde MongoDB comienza a devolver resultados.
+                .skip((page - 1) * limit)
             res.send(posts)
         } catch (error) {
             console.error(error)
@@ -61,6 +68,36 @@ const PostController = {
                 { new: true }
             )
             res.send({ message: 'post successfully updated', post })
+        } catch (error) {
+            console.error(error)
+        }
+    },
+    // Para insertar un comentario usamos el método findByIdAndUpdate() 
+    // para buscar el post y añadirlo.
+    // en el ejemplo de clase son reviews 
+    async insertComment(req, res) {
+        try {
+            const post = await Post.findByIdAndUpdate(
+                req.params._id,
+                {
+                    $push: { reviews: { comment: req.body.comment, userId: req.user._id } },
+                }, { new: true })
+            res.send(post)
+        } catch (error) {
+            console.error(error)
+            res.status(500).send({ message: 'There was a problem with your comment' })
+        }
+    },
+    // populate() nos permite hacer referencia a documentos en otras colecciones.
+    // En este caso usando populate() nos trae al usuario o usuarios que hicieron los diferentes comentarios.
+    async getAll(req, res) {
+        try {
+            const { page = 1, limit = 10 } = req.query
+            const posts = await Post.find()
+                .populate('reviews.userId')
+                .limit(limit * 1)
+                .skip((page - 1) * limit)
+            res.send(posts)
         } catch (error) {
             console.error(error)
         }

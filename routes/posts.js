@@ -9,5 +9,6 @@ router.get('/name/:name', PostController.getPostsByName)
 router.post('/', authentication, isAdmin, PostController.create)
 router.delete('/:_id', authentication, isAdmin, PostController.delete)
 router.put('/:_id', authentication, isAdmin, PostController.update)
+router.put('/comments/:_id', authentication, PostController.insertComment)
 
 module.exports = router

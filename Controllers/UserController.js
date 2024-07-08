@@ -1,14 +1,25 @@
-const User = require('../models/User.js')
+const { User } = require('../models/User.js')
+
+// importando módulo bcrypt
+const bcrypt = require('bcryptjs')
+
 const jwt = require('jsonwebtoken')
 const { jwt_secret } = require('../config/keys.js')
 
 const UserController = {
     async register(req, res) {
         try {
-            const user = await User.create(
-                { ...req.body, role: 'user' }
-            )
-            res.status(201).send({ message: 'Usuario registrado con exito', user })
+            // creamos el hash de forma síncrona
+            // definimos el salt 
+            const password = bcrypt.hashSync(req.body.password, 10)
+            const user = await User.create({
+                ...req.body,
+                role: 'user',
+                password: password
+            })
+            res.status(201).send({
+                message: 'Usuario registrado con exito', user
+            })
         } catch (error) {
             console.error(error)
         }
@@ -17,10 +28,23 @@ const UserController = {
         try {
             const user = await User.findOne({
                 email: req.body.email,
+                // password: password
             })
             const token = jwt.sign({ _id: user._id }, jwt_secret)
-            if (user.tokens.length > 4) user.tokens.shift()
+            // esto no, porque es en tablas
+            // Token.create({
+            //     token,
+            //     userId: user._id
+            // })
+            const isMatch = bcrypt.compareSync(req.body.password, user.password)
+            if (user.tokens.length > 4) {
+                user.tokens.shift()
+            }
             user.tokens.push(token)
+            // bcrypt login ¿?
+            if (!isMatch) {
+                return
+            }
             await user.save()
             res.send({ message: 'Bienvenid@ ' + user.name, token })
         } catch (error) {

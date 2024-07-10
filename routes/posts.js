@@ -10,5 +10,6 @@ router.post('/', authentication, isAdmin, PostController.create)
 router.delete('/:_id', authentication, isAdmin, PostController.delete)
 router.put('/:_id', authentication, isAdmin, PostController.update)
 router.put('/comments/:_id', authentication, PostController.insertComment)
+router.put('/likes/:_id', authentication, PostController.like)
 
 module.exports = router

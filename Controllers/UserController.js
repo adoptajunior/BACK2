@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken')
 const { jwt_secret } = require('../config/keys.js')
 
 const UserController = {
-    async register(req, res) {
+    async register(req, res, next) {
         try {
             // creamos el hash de forma síncrona
             // definimos el salt 
@@ -21,7 +21,9 @@ const UserController = {
                 message: 'Usuario registrado con exito', user
             })
         } catch (error) {
-            console.error(error)
+            // console.error(error)
+            error.origin = 'usuario'
+            next(error)
         }
     },
     async login(req, res) {
@@ -30,23 +32,26 @@ const UserController = {
                 email: req.body.email,
                 // password: password
             })
-            const token = jwt.sign({ _id: user._id }, jwt_secret)
-            // esto no, porque es en tablas
-            // Token.create({
-            //     token,
-            //     userId: user._id
-            // })
+            if (!user) {
+                return res.status(400).send({ message: 'Usuario o contraseña incorrectos' })
+            }
+            // BCRYPT
             const isMatch = bcrypt.compareSync(req.body.password, user.password)
+            if (!isMatch) {
+                return res.status(400).send({ message: 'Usuario o contraseña incorrectos' })
+            }
+            // TOKEN
+            const token = jwt.sign({ _id: user._id }, jwt_secret)
             if (user.tokens.length > 4) {
                 user.tokens.shift()
             }
+            // Generamos el token al loguearnos correctamente con el método push()
             user.tokens.push(token)
-            // bcrypt login ¿?
-            if (!isMatch) {
-                return
-            }
+
             await user.save()
-            res.send({ message: 'Bienvenid@ ' + user.name, token })
+
+            res.send({ message: 'Bienvenid@ ' + user.name, user, token })
+
         } catch (error) {
             console.error(error)
         }
@@ -69,7 +74,25 @@ const UserController = {
                 message: 'ha habido un problema al intentar eliminar este usuario'
             })
         }
-    }
+    },
+    // PARA QUE SALGAN LOS POST CON LIKE DE CIERTO USER ¿?
+    // BUSCAR CÓMO HACERLO...
+
+    // async getInfo(req, res) {
+    //     try {
+    //         const user = await User.findById(req.user._id)
+    //             .populate({
+    //                 path: "orderIds",
+    //                 populate: {
+    //                     path: "productIds",
+    //                 },
+    //             })
+    //             .populate("wishList")
+    //         res.send(user)
+    //     } catch (error) {
+    //         console.error(error)
+    //     }
+    // }
 
 }
 module.exports = UserController
